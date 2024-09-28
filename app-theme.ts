@@ -87,7 +87,7 @@ export const appTheme: CustomThemeConfig = {
 		'--color-error-800': '153 38 11', // #99260b
 		'--color-error-900': '125 31 9', // #7d1f09
 		// surface | #232323
-		'--color-surface-50': '222 222 222', // #dedede
+		'--color-surface-50': '255 255 255', // #dedede
 		'--color-surface-100': '211 211 211', // #d3d3d3
 		'--color-surface-200': '200 200 200', // #c8c8c8
 		'--color-surface-300': '167 167 167', // #a7a7a7

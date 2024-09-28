@@ -4,9 +4,25 @@
 	// Local
 	let files: FileList;
 
+	let imgUrl: string;
+
 	function onChangeHandler(e: Event): void {
 		console.log('file data:', e);
 		console.log('files:', files);
+	}
+
+	function download(): void {
+		const fileUrl = URL.createObjectURL(files[0]);
+
+		imgUrl = fileUrl;
+		let a = document.createElement('a');
+		document.body.appendChild(a);
+		a.setAttribute('style', 'display: none');
+
+		a.href = fileUrl;
+		a.download = 'blobby.jpg';
+		a.click();
+		window.URL.revokeObjectURL(fileUrl);
 	}
 
 	$: trackUnderLineClass = $modeCurrent ? 'decoration-cyan-700' : 'decoration-yellow-300';
@@ -32,43 +48,11 @@
 						>
 						<svelte:fragment slot="meta">MP3, WAV, JPG, PNG allowed.</svelte:fragment>
 					</FileDropzone>
+					<br />
+					<!-- <button class="btn variant-filled-primary" on:click={download}>Download</button> -->
+					<!-- <img src={imgUrl} /> -->
 				</div>
 			</div>
 		</main>
 	</div>
 </div>
-
-<style lang="postcss">
-	figure {
-		@apply flex relative flex-col;
-	}
-	figure svg,
-	.img-bg {
-		@apply w-64 h-64 md:w-80 md:h-80;
-	}
-	.img-bg {
-		@apply absolute z-[-1] rounded-full blur-[50px] transition-all;
-		animation:
-			pulse 5s cubic-bezier(0, 0, 0, 0.5) infinite,
-			glow 5s linear infinite;
-	}
-	@keyframes glow {
-		0% {
-			@apply bg-primary-400/50;
-		}
-		33% {
-			@apply bg-secondary-400/50;
-		}
-		66% {
-			@apply bg-tertiary-400/50;
-		}
-		100% {
-			@apply bg-primary-400/50;
-		}
-	}
-	@keyframes pulse {
-		50% {
-			transform: scale(1.5);
-		}
-	}
-</style>
