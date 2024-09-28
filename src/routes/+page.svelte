@@ -14,8 +14,8 @@
 
 <div class="flex-auto w-full h-full flex overflow-hidden">
 	<div id="page" class="flex-1 overflow-x-hidden flex flex-col" style="scrollbar-gutter: auto;">
-		<main id="page-content" class="flex-auto">
-			<div class="container h-full mx-auto flex justify-center mt-[10vh]">
+		<main id="page-content" class="flex-auto mt-[10vh]">
+			<div class="container h-full mx-auto flex justify-center">
 				<div class="w-full mx-12">
 					<h1 class="text-5xl mb-12 mx-auto">
 						Upload those <span class="underline {trackUnderLineClass} font-bold">tracks</span>.
