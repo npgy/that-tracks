@@ -88,7 +88,7 @@
 					<FileDropzone
 						class="h-[40vh]"
 						name="files-example-two"
-						accept="image/*"
+						accept="image/*,video/*,audio/*"
 						on:change={onChangeHandler}
 						bind:files
 					>
