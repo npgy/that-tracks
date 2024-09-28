@@ -30,7 +30,7 @@
 						<svelte:fragment slot="lead"
 							><i class="fa-solid fa-file-arrow-up text-4xl"></i></svelte:fragment
 						>
-						<svelte:fragment slot="meta">PNG, JPG, and GIF allowed.</svelte:fragment>
+						<svelte:fragment slot="meta">MP3, WAV, JPG, PNG allowed.</svelte:fragment>
 					</FileDropzone>
 				</div>
 			</div>
