@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { FileDropzone, ProgressBar, modeCurrent } from '@skeletonlabs/skeleton';
 	import { FFmpeg } from '@ffmpeg/ffmpeg';
-	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types';
-	import { fetchFile, toBlobURL } from '@ffmpeg/util';
+	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
+	import { fetchFile, toBlobURL } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
 
 	// Local
 	let files: FileList;
