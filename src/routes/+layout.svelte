@@ -6,9 +6,16 @@
 	import '@fortawesome/fontawesome-free/css/fontawesome.css';
 	import '@fortawesome/fontawesome-free/css/brands.css';
 	import '@fortawesome/fontawesome-free/css/solid.css';
-</script>
+	import { onMount } from 'svelte';
 
-<svelte:head>{@html '<script>(' + autoModeWatcher.toString() + ')();</script>'}</svelte:head>
+	onMount(() => {
+		autoModeWatcher();
+	});
+
+	$: nickFooterClasses = $modeCurrent
+		? 'text-secondary-800 hover:text-secondary-900'
+		: 'text-primary-400 hover:text-primary-500';
+</script>
 
 <div class="w-full h-full flex flex-col overflow-hidden">
 	<header class="flex-none z-10">
@@ -31,16 +38,10 @@
 
 	<slot />
 	<footer class="mx-auto p-4">
-		<div class="text-white flex justify-center relative">
+		<div class="flex justify-center relative">
 			<div>
 				Made with ❤️ by
-				<a
-					class="text-yellow-400 hover:text-yellow-500"
-					href="https://github.com/npgy"
-					target="_blank"
-				>
-					Nick P</a
-				>
+				<a class={nickFooterClasses} href="https://github.com/npgy" target="_blank"> Nick P</a>
 			</div>
 		</div>
 	</footer>
