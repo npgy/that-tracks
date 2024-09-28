@@ -20,7 +20,7 @@
 				<a href="https://and.fm/discord" target="_blank"
 					><i class="fa-brands fa-discord text-xl" style="display: flex"></i></a
 				>
-				<a href="https://github.com/npgy" target="_blank"
+				<a href="https://github.com/npgy/that-tracks" target="_blank"
 					><i class="fa-brands fa-github text-xl" style="display: flex"></i></a
 				>
 				<div></div>
@@ -30,4 +30,18 @@
 	</header>
 
 	<slot />
+	<footer class="mx-auto p-4">
+		<div class="text-white flex justify-center relative">
+			<div>
+				Made with ❤️ by
+				<a
+					class="text-yellow-400 hover:text-yellow-500"
+					href="https://github.com/npgy"
+					target="_blank"
+				>
+					Nick P</a
+				>
+			</div>
+		</div>
+	</footer>
 </div>

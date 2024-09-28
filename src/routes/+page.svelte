@@ -14,18 +14,21 @@
 	<div id="page" class="flex-1 overflow-x-hidden flex flex-col" style="scrollbar-gutter: auto;">
 		<main id="page-content" class="flex-auto">
 			<div class="container h-full mx-auto flex justify-center items-center">
-				<FileDropzone
-					class="h-[30rem]"
-					name="files-example-two"
-					accept="image/*"
-					on:change={onChangeHandler}
-					bind:files
-				>
-					<svelte:fragment slot="lead"
-						><i class="fa-solid fa-file-arrow-up text-4xl"></i></svelte:fragment
+				<div class="w-full mx-12">
+					<h1 class="text-5xl mb-12 mx-auto">Upload those tracks.</h1>
+					<FileDropzone
+						class="h-[30rem]"
+						name="files-example-two"
+						accept="image/*"
+						on:change={onChangeHandler}
+						bind:files
 					>
-					<svelte:fragment slot="meta">PNG, JPG, and GIF allowed.</svelte:fragment>
-				</FileDropzone>
+						<svelte:fragment slot="lead"
+							><i class="fa-solid fa-file-arrow-up text-4xl"></i></svelte:fragment
+						>
+						<svelte:fragment slot="meta">PNG, JPG, and GIF allowed.</svelte:fragment>
+					</FileDropzone>
+				</div>
 			</div>
 		</main>
 	</div>
