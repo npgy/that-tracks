@@ -21,7 +21,7 @@
 						Upload those <span class="underline {trackUnderLineClass} font-bold">tracks</span>.
 					</h1>
 					<FileDropzone
-						class="h-[30rem]"
+						class="h-[40vh]"
 						name="files-example-two"
 						accept="image/*"
 						on:change={onChangeHandler}
