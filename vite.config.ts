@@ -29,7 +29,7 @@ export default defineConfig({
 		}
 	},
 	optimizeDeps: {
-		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@ffmpeg/core/wasm?url']
+		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@ffmpeg/core/wasm']
 	},
 	server: {
 		headers: {

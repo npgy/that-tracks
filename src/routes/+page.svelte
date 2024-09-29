@@ -4,7 +4,7 @@
 	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
 	import { fetchFile } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
 	import ffmpegCore from '@ffmpeg/core?url';
-	import ffmpegWasm from '@ffmpeg/core/wasm?url';
+	import ffmpegWasm from '@ffmpeg/core/wasm';
 	// import { createFFmpegCore } from '../../node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js';
 
 	// Local
