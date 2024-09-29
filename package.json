@@ -3,10 +3,9 @@
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
-		"dev": "npm run copy-wasm && vite dev",
-		"build": "npm run copy-wasm && vite build",
+		"dev": "vite dev",
+		"build": "vite build",
 		"preview": "vite preview",
-		"copy-wasm": "cp node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.wasm static/ffmpeg-core.wasm",
 		"test": "npm run test:integration && npm run test:unit",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -16,7 +15,6 @@
 		"test:unit": "vitest"
 	},
 	"dependencies": {
-		"@ffmpeg/core": "^0.12.6",
 		"@ffmpeg/ffmpeg": "^0.12.10",
 		"@ffmpeg/types": "^0.12.2",
 		"@ffmpeg/util": "^0.12.1",

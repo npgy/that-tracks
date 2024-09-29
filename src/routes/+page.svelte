@@ -3,8 +3,6 @@
 	import { FFmpeg } from '@ffmpeg/ffmpeg';
 	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
 	import { fetchFile } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
-	import ffmpegCore from '@ffmpeg/core?url';
-	import { page } from '$app/stores';
 
 	// Local
 	let droppedFiles: FileList | undefined;
@@ -27,6 +25,8 @@
 
 	let ffmpegAudParams: string[] = [];
 	let ffmpegConcatParams: string[] = [];
+
+	const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
 
 	const toBlobURL = async (url: string, mimeType: string): Promise<string> => {
 		const buf = await (await fetch(url)).arrayBuffer();
@@ -115,8 +115,8 @@
 		console.log('about to load');
 
 		await ffmpeg.load({
-			coreURL: ffmpegCore,
-			wasmURL: await toBlobURL(`${$page.url.origin}/ffmpeg-core.wasm`, 'application/wasm')
+			coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+			wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
 		});
 		console.log('loaded ffmpeg');
 
