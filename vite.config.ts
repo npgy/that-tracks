@@ -21,10 +21,7 @@ const viteServerConfig = {
 export default defineConfig({
 	plugins: [wasm(), topLevelAwait(), sveltekit(), purgeCss(), viteServerConfig],
 	worker: {
-		plugins: () => [wasm() as PluginOption, topLevelAwait() as PluginOption],
-		optimizeDeps: {
-			exclude: ['@ffmpeg/core/wasm']
-		}
+		plugins: () => [wasm() as PluginOption, topLevelAwait() as PluginOption]
 	},
 	resolve: {
 		alias: {
@@ -32,7 +29,7 @@ export default defineConfig({
 		}
 	},
 	optimizeDeps: {
-		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@ffmpeg/core/wasm']
+		exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util', '@ffmpeg/core/wasm?url']
 	},
 	server: {
 		headers: {
