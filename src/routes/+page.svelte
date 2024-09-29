@@ -3,11 +3,13 @@
 	import { FFmpeg } from '@ffmpeg/ffmpeg';
 	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
 	import { fetchFile, toBlobURL } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
+	import ffmpegCore from '@ffmpeg/core?url';
 
 	// Local
 	let files: FileList;
 
-	let imgUrl: string;
+	let fileUrls: { [file: string]: string } = { aud0: 'fileurl' };
+	let audCount = 0;
 
 	let vidOutput: FileData;
 
@@ -15,13 +17,18 @@
 	let encodeStarted: boolean = false;
 	let encodeDone: boolean = false;
 
-	const baseFfmpegURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-
 	function onChangeHandler(e: Event): void {
 		console.log('file data:', e);
 		console.log('files:', files);
 
-		imgUrl = URL.createObjectURL(files[0]);
+		for (const file of files) {
+			if (file.type.includes('audio')) {
+				fileUrls['aud' + audCount] = URL.createObjectURL(file);
+				audCount++;
+			} else if (file.type.includes('image')) {
+				fileUrls['cover'] = URL.createObjectURL(file);
+			}
+		}
 	}
 
 	async function ffmpegStuff(): Promise<void> {
@@ -44,24 +51,66 @@
 
 		console.log('about to load');
 		await ffmpeg.load({
-			coreURL: await toBlobURL(`${baseFfmpegURL}/ffmpeg-core.js`, 'text/javascript'),
-			wasmURL: await toBlobURL(`${baseFfmpegURL}/ffmpeg-core.wasm`, 'application/wasm'),
-			workerURL: await toBlobURL(`${baseFfmpegURL}/ffmpeg-core.worker.js`, 'text/javascript')
+			coreURL: ffmpegCore
 		});
 		console.log('loaded ffmpeg');
 
-		await ffmpeg.writeFile('test.mp4', await fetchFile(imgUrl));
+		for (const fileName in fileUrls) {
+			await ffmpeg.writeFile(fileName, await fetchFile(fileUrls[fileName]));
+		}
+
 		console.log('writing input file');
 
-		await ffmpeg.exec(['-i', 'test.mp4', 'test.avi']);
-		console.log('encoding to avi');
+		await ffmpeg.exec([
+			'-hwaccel',
+			'auto',
+			'-loop',
+			'1',
+			'-y',
+			'-framerate',
+			'1',
+			'-i',
+			'cover',
+			'-i',
+			'aud0',
+			'-i',
+			'aud1',
+			'-i',
+			'aud2',
+			'-i',
+			'aud3',
+			'-i',
+			'aud4',
+			'-filter_complex',
+			'[1:a][2:a][3:a][4:a][5:a]concat=n=5:v=0:a=1',
+			'-tune',
+			'stillimage',
+			'-shortest',
+			'-fflags',
+			'+shortest',
+			'-max_interleave_delta',
+			'100M',
+			'-vf',
+			'format=yuv420p',
+			'-s',
+			'1080x1080',
+			'-preset',
+			'ultrafast',
+			'-b:a',
+			'320k',
+			'out.mp4'
+		]);
+		// await ffmpeg.exec(['-i', 'in.mp4', '-c:a', 'copy', 'out.mp4']);
+		console.log('encoding to mp4');
 
-		vidOutput = await ffmpeg.readFile('test.avi');
+		vidOutput = await ffmpeg.readFile('out.mp4');
+
+		// await ffmpeg.writeFile('in.mp4', vidOutput);
 	}
 
 	function download(): void {
 		const vidUrl = URL.createObjectURL(
-			new Blob([(vidOutput as Uint8Array).buffer], { type: 'video/avi' })
+			new Blob([(vidOutput as Uint8Array).buffer], { type: 'video/mp4' })
 		);
 
 		let a = document.createElement('a');
@@ -69,7 +118,7 @@
 		a.setAttribute('style', 'display: none');
 
 		a.href = vidUrl;
-		a.download = 'test.avi';
+		a.download = 'out.mp4';
 		a.click();
 		window.URL.revokeObjectURL(vidUrl);
 	}
@@ -89,6 +138,7 @@
 						class="h-[40vh]"
 						name="files-example-two"
 						accept="image/*,video/*,audio/*"
+						multiple
 						on:change={onChangeHandler}
 						bind:files
 					>
