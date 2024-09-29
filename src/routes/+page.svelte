@@ -4,7 +4,8 @@
 	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
 	import { fetchFile } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
 	import ffmpegCore from '@ffmpeg/core?url';
-	import ffmpegWasm from '@ffmpeg/core/wasm';
+	import { page } from '$app/stores';
+	import { toBlobURL } from '@ffmpeg/util';
 	// import { createFFmpegCore } from '../../node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js';
 
 	// Local
@@ -110,7 +111,7 @@
 		console.log('about to load');
 		await ffmpeg.load({
 			coreURL: ffmpegCore,
-			wasmURL: ffmpegWasm
+			wasmURL: await toBlobURL(`${$page.url.origin}/ffmpeg-core.wasm`, 'application/wasm')
 		});
 		console.log('loaded ffmpeg');
 
