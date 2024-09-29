@@ -5,8 +5,6 @@
 	import { fetchFile } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
 	import ffmpegCore from '@ffmpeg/core?url';
 	import { page } from '$app/stores';
-	import { toBlobURL } from '@ffmpeg/util';
-	// import { createFFmpegCore } from '../../node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js';
 
 	// Local
 	let droppedFiles: FileList | undefined;
@@ -29,6 +27,12 @@
 
 	let ffmpegAudParams: string[] = [];
 	let ffmpegConcatParams: string[] = [];
+
+	const toBlobURL = async (url: string, mimeType: string): Promise<string> => {
+		const buf = await (await fetch(url)).arrayBuffer();
+		const blob = new Blob([buf], { type: mimeType });
+		return URL.createObjectURL(blob);
+	};
 
 	function onChangeHandler(e: Event): void {
 		if (!droppedFiles) {
@@ -109,6 +113,7 @@
 		});
 
 		console.log('about to load');
+
 		await ffmpeg.load({
 			coreURL: ffmpegCore,
 			wasmURL: await toBlobURL(`${$page.url.origin}/ffmpeg-core.wasm`, 'application/wasm')
