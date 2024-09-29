@@ -1,7 +1,9 @@
 import { purgeCss } from 'vite-plugin-tailwind-purgecss';
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vite';
+import { defineConfig, type PluginOption } from 'vite';
 import { fileURLToPath } from 'node:url';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
 
 const viteServerConfig = {
 	name: 'log-request-middleware',
@@ -17,7 +19,10 @@ const viteServerConfig = {
 };
 
 export default defineConfig({
-	plugins: [sveltekit(), purgeCss(), viteServerConfig],
+	plugins: [wasm(), topLevelAwait(), sveltekit(), purgeCss(), viteServerConfig],
+	worker: {
+		plugins: () => [wasm() as PluginOption, topLevelAwait() as PluginOption]
+	},
 	resolve: {
 		alias: {
 			'@': fileURLToPath(new URL('./src', import.meta.url))
@@ -33,6 +38,11 @@ export default defineConfig({
 		},
 		fs: {
 			allow: ['../..']
+		}
+	},
+	build: {
+		rollupOptions: {
+			external: [/^\@ffmpeg\/core\/wasm*/]
 		}
 	}
 });

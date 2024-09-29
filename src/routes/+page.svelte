@@ -4,6 +4,8 @@
 	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
 	import { fetchFile } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
 	import ffmpegCore from '@ffmpeg/core?url';
+	import ffmpegWasm from '@ffmpeg/core/wasm?url';
+	// import { createFFmpegCore } from '../../node_modules/@ffmpeg/core/dist/esm/ffmpeg-core.js';
 
 	// Local
 	let droppedFiles: FileList | undefined;
@@ -107,7 +109,8 @@
 
 		console.log('about to load');
 		await ffmpeg.load({
-			coreURL: ffmpegCore
+			coreURL: ffmpegCore,
+			wasmURL: ffmpegWasm
 		});
 		console.log('loaded ffmpeg');
 
