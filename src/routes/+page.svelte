@@ -78,6 +78,10 @@
 		console.log('files:', files);
 
 		hasRequiredFiles = hasAudioFiles && hasImageFile;
+
+		if (files?.length > 0) {
+			document.querySelector('.dropzone-lead')?.remove();
+		}
 	}
 
 	function clearFiles(): void {
@@ -98,7 +102,10 @@
 		encodeStarted = true;
 		console.log('starting ffmpeg stuff');
 
+		console.log('about to load');
+
 		const ffmpeg = new FFmpeg();
+
 		ffmpeg.on('log', ({ message: msg }: LogEvent) => {
 			console.log(msg);
 		});
@@ -111,8 +118,6 @@
 
 			console.log(pe);
 		});
-
-		console.log('about to load');
 
 		await ffmpeg.load({
 			coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
@@ -203,7 +208,7 @@
 						Upload those <span class="underline {trackUnderLineClass} font-bold">tracks</span>.
 					</h1>
 					<FileDropzone
-						class={files?.length > 0 ? 'min-h-[8rem]' : 'h-[40vh]'}
+						class={files?.length > 0 ? 'min-h-[4rem]' : 'h-[40vh]'}
 						id="file-dropper"
 						name="files-example-two"
 						accept="image/*,audio/*"
@@ -212,20 +217,20 @@
 						bind:files={droppedFiles}
 					>
 						<svelte:fragment slot="lead">
-							{#if !files || files?.length == 0}
-								<i class="fa-solid fa-file-arrow-up text-4xl"></i>
-							{/if}
+							<i class="fa-solid fa-file-arrow-up text-4xl"></i>
 						</svelte:fragment>
 						<svelte:fragment slot="message">
-							<div class={files?.length > 0 ? 'pt-[1vh]' : ''}>
+							<div>
 								<strong>Upload {files?.length > 0 ? 'more ' : ' '}files</strong> or drag and drop
 							</div>
 						</svelte:fragment>
-						<svelte:fragment slot="meta"
-							><div class={files?.length > 0 ? 'pb-[1vh]' : ''}>
-								Audio and Image formats allowed.
-							</div></svelte:fragment
-						>
+						<svelte:fragment slot="meta">
+							{#if files?.length === 0}
+								<div class={files?.length > 0 ? 'pb-[1vh]' : ''}>
+									Audio and Image formats allowed.
+								</div>
+							{/if}
+						</svelte:fragment>
 					</FileDropzone>
 					<br />
 
@@ -250,7 +255,6 @@
 										</span>
 									</div>
 								{/each}
-								<!-- ... -->
 							</dl>
 						</div>
 					{/if}
@@ -273,7 +277,6 @@
 							>
 						{/if}
 					</div>
-					<!-- <img src={imgUrl} /> -->
 				</div>
 			</div>
 		</main>
