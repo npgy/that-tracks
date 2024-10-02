@@ -1,3 +1,5 @@
+import filesStore from '$lib/state/files.store';
+
 export function hasRequiredFiles(files: File[]): boolean {
 	let hasAudio: boolean = false;
 	let hasImage: boolean = false;
@@ -17,4 +19,5 @@ export function hasRequiredFiles(files: File[]): boolean {
 
 export function clearFiles(): void {
 	(document.getElementById('file-dropper') as any).value = '';
+	filesStore.set([]);
 }

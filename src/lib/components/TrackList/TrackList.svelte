@@ -1,24 +1,17 @@
 <script lang="ts">
-	import { filesStore } from '$lib/state/files.store';
-
-	let files: File[];
-
-	filesStore.subscribe((f) => {
-		files = f;
-	});
+	import filesStore from '$lib/state/files.store';
 
 	function clearFiles(): void {
-		files = [];
 		filesStore.set([]);
 		(document.getElementById('file-dropper') as any).value = '';
 	}
 </script>
 
-{#if files?.length > 0}
+{#if $filesStore?.length > 0}
 	<div class="w-full mt-8">
 		<button class="btn variant-filled-primary mb-4" on:click={clearFiles}>Clear</button>
 		<dl class="list-dl">
-			{#each files as file}
+			{#each $filesStore as file}
 				<div>
 					<span class="badge bg-primary-500">📄</span>
 					<span class="flex-auto">

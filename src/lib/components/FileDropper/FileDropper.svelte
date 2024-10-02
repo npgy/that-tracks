@@ -1,12 +1,6 @@
 <script lang="ts">
-	import { filesStore } from '$lib/state/files.store';
+	import filesStore from '$lib/state/files.store';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
-
-	let files: File[];
-
-	filesStore.subscribe((f) => {
-		files = f;
-	});
 
 	let droppedFiles: FileList | undefined;
 
@@ -21,17 +15,12 @@
 			}
 		});
 
-		files = [...files, ...droppedFilesFiltered];
-		filesStore.set(files);
-
-		if (files?.length > 0) {
-			document.querySelector('.dropzone-lead')?.remove();
-		}
+		filesStore.update((files) => [...files, ...droppedFilesFiltered]);
 	}
 </script>
 
 <FileDropzone
-	class={files?.length > 0 ? 'min-h-[4rem]' : 'h-[40vh]'}
+	class={$filesStore?.length > 0 ? 'min-h-[4rem]' : 'h-[40vh]'}
 	id="file-dropper"
 	name="files-example-two"
 	accept="image/*,audio/*"
@@ -44,12 +33,12 @@
 	</svelte:fragment>
 	<svelte:fragment slot="message">
 		<div>
-			<strong>Upload {files?.length > 0 ? 'more ' : ' '}files</strong> or drag and drop
+			<strong>Upload {$filesStore?.length > 0 ? 'more ' : ' '}files</strong> or drag and drop
 		</div>
 	</svelte:fragment>
 	<svelte:fragment slot="meta">
-		{#if files?.length === 0}
-			<div class={files?.length > 0 ? 'pb-[1vh]' : ''}>Audio and Image formats allowed.</div>
+		{#if $filesStore?.length === 0}
+			<div class={$filesStore?.length > 0 ? 'pb-[1vh]' : ''}>Audio and Image formats allowed.</div>
 		{/if}
 	</svelte:fragment>
 </FileDropzone>

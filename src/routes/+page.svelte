@@ -9,7 +9,7 @@
 	import { onMount } from 'svelte';
 	import { ffmpegLog } from '$lib/services/ffmpeg/ffmpeg-log.js';
 	import { writable } from 'svelte/store';
-	import { filesStore } from '$lib/state/files.store.js';
+	import filesStore from '$lib/state/files.store.js';
 
 	let ffmpeg: FFmpeg;
 
@@ -46,7 +46,7 @@
 	}
 
 	async function ffmpegCreateVideo(): Promise<void> {
-		vidOutput = await createVideo(ffmpeg, files);
+		vidOutput = await createVideo(ffmpeg, $filesStore);
 	}
 
 	$: trackUnderLineClass = $modeCurrent ? 'decoration-cyan-700' : 'decoration-yellow-300';
