@@ -6,11 +6,13 @@ import { fetchFile } from '../../../../node_modules/@ffmpeg/util/dist/esm/index.
 
 type FileUrls = { [file: string]: string };
 
+/// Code attributed to ffmpegwasm/ffmpeg.wasm under the MIT License ///
 const toBlobURL = async (url: string, mimeType: string): Promise<string> => {
 	const buf = await (await fetch(url)).arrayBuffer();
 	const blob = new Blob([buf], { type: mimeType });
 	return URL.createObjectURL(blob);
 };
+///////////////////////////////////////////////////////////////////////
 
 function getFileUrlsAndFfmpegParams(files: File[]): {
 	fileUrls: FileUrls;
