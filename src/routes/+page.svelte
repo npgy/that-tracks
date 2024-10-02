@@ -1,15 +1,14 @@
 <script lang="ts">
-	import { ProgressBar, modeCurrent } from '@skeletonlabs/skeleton';
-	import { FFmpeg } from '@ffmpeg/ffmpeg';
-	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
+	import { hasRequiredFiles } from '$lib/components/FileDropper/FileDropper.js';
 	import FileDropper from '$lib/components/FileDropper/FileDropper.svelte';
 	import TrackList from '$lib/components/TrackList/TrackList.svelte';
-	import { hasRequiredFiles } from '$lib/components/FileDropper/FileDropper.js';
-	import { createVideo } from '$lib/services/ffmpeg/ffmpeg.js';
-	import { onMount } from 'svelte';
 	import { ffmpegLog } from '$lib/services/ffmpeg/ffmpeg-log.js';
-	import { writable } from 'svelte/store';
+	import { createVideo } from '$lib/services/ffmpeg/ffmpeg.js';
 	import filesStore from '$lib/state/files.store.js';
+	import { FFmpeg } from '@ffmpeg/ffmpeg';
+	import { ProgressBar, modeCurrent } from '@skeletonlabs/skeleton';
+	import { onMount } from 'svelte';
+	import type { FileData } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
 
 	let ffmpeg: FFmpeg;
 
