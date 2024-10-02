@@ -17,7 +17,7 @@
 		: 'text-primary-400 hover:text-primary-500';
 </script>
 
-<div class="w-full h-full flex flex-col overflow-hidden">
+<div class="w-full h-full flex flex-col">
 	<header class="flex-none z-10">
 		<AppBar background="">
 			<svelte:fragment slot="lead">
@@ -38,7 +38,7 @@
 
 	<slot />
 	<footer class="mx-auto p-4">
-		<div class="flex justify-center relative">
+		<div class="flex justify-center">
 			<div>
 				Made with ❤️ by
 				<a class={nickFooterClasses} href="https://github.com/npgy" target="_blank"> Nick P</a>

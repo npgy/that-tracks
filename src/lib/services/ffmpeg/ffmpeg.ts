@@ -1,11 +1,10 @@
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import type { FileData } from '../../../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
+import ffmpegCore from '@ffmpeg/core?url';
 
 import { fetchFile } from '../../../../node_modules/@ffmpeg/util/dist/esm/index.js';
 
 type FileUrls = { [file: string]: string };
-
-const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
 
 const toBlobURL = async (url: string, mimeType: string): Promise<string> => {
 	const buf = await (await fetch(url)).arrayBuffer();
@@ -22,7 +21,7 @@ function getFileUrlsAndFfmpegParams(files: File[]): {
 	let audCount = 0;
 	let fileUrls: FileUrls = { aud0: 'fileurl' };
 	let ffmpegAudParams: string[] = [];
-	let ffmpegConcatParams: string[] = [];
+	let ffmpegConcatParams: string[] = ['[1:a]'];
 
 	for (const file of files) {
 		if (file.type.includes('audio')) {
@@ -51,8 +50,8 @@ export async function createVideo(ffmpeg: FFmpeg, files: File[]): Promise<FileDa
 	console.log('loading ffmpeg');
 
 	await ffmpeg.load({
-		coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-		wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+		coreURL: ffmpegCore,
+		wasmURL: await toBlobURL(`https://cdn.thatracks.com/ffmpeg-core.wasm`, 'application/wasm')
 	});
 	console.log('loaded ffmpeg');
 

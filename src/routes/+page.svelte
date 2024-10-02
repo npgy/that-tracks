@@ -1,184 +1,33 @@
 <script lang="ts">
-	import { FileDropzone, ProgressBar, modeCurrent } from '@skeletonlabs/skeleton';
+	import { ProgressBar, modeCurrent } from '@skeletonlabs/skeleton';
 	import { FFmpeg } from '@ffmpeg/ffmpeg';
 	import type { FileData, LogEvent } from '../../node_modules/@ffmpeg/ffmpeg/dist/esm/types.d.ts';
-	import { fetchFile } from '../../node_modules/@ffmpeg/util/dist/esm/index.js';
+	import FileDropper from '$lib/components/FileDropper/FileDropper.svelte';
+	import TrackList from '$lib/components/TrackList/TrackList.svelte';
+	import { hasRequiredFiles } from '$lib/components/FileDropper/FileDropper.js';
+	import { createVideo } from '$lib/services/ffmpeg/ffmpeg.js';
+	import { onMount } from 'svelte';
+	import { ffmpegLog } from '$lib/services/ffmpeg/ffmpeg-log.js';
+	import { writable } from 'svelte/store';
+	import { filesStore } from '$lib/state/files.store.js';
 
-	// Local
-	let droppedFiles: FileList | undefined;
-	let fileDropperEl;
-	let files: File[] = [];
-
-	let fileUrls: { [file: string]: string } = { aud0: 'fileurl' };
-	let audCount = 0;
+	let ffmpeg: FFmpeg;
 
 	let vidOutput: FileData;
 
 	let encodeProgress: number = 0;
-	let encodeStarted: boolean = false;
 	let encodeDone: boolean = false;
 
-	let hasAudioFiles: boolean = false;
-	let hasMultipleAudioFiles: boolean = false;
-	let hasImageFile: boolean = false;
-	let hasRequiredFiles: boolean = false;
+	onMount(() => {
+		ffmpeg = new FFmpeg();
+		ffmpegLog(ffmpeg, ffmpegProgress, ffmpegDone);
+	});
 
-	let ffmpegAudParams: string[] = [];
-	let ffmpegConcatParams: string[] = [];
-
-	const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-
-	const toBlobURL = async (url: string, mimeType: string): Promise<string> => {
-		const buf = await (await fetch(url)).arrayBuffer();
-		const blob = new Blob([buf], { type: mimeType });
-		return URL.createObjectURL(blob);
-	};
-
-	function onChangeHandler(e: Event): void {
-		if (!droppedFiles) {
-			return;
-		}
-
-		const droppedFilesFiltered = Array.from(droppedFiles).filter((file) => {
-			if (file.type.includes('image') && !hasImageFile) {
-				hasImageFile = true;
-
-				return file;
-			}
-			if (file.type.includes('audio')) {
-				hasAudioFiles = true;
-
-				return file;
-			}
-		});
-
-		files = [...files, ...droppedFilesFiltered];
-
-		audCount = 0;
-		ffmpegAudParams = [];
-		ffmpegConcatParams = ['[1:a]'];
-		for (const file of files) {
-			if (file.type.includes('audio')) {
-				hasMultipleAudioFiles = audCount > 0;
-
-				fileUrls['aud' + audCount] = URL.createObjectURL(file);
-
-				if (hasMultipleAudioFiles) {
-					ffmpegAudParams = [...ffmpegAudParams, '-i', 'aud' + audCount];
-					ffmpegConcatParams = [...ffmpegConcatParams, `[${audCount + 1}:a]`];
-				}
-				audCount++;
-			}
-			if (file.type.includes('image')) {
-				fileUrls['cover'] = URL.createObjectURL(file);
-			}
-		}
-
-		console.log('file data:', e);
-		console.log('files:', files);
-
-		hasRequiredFiles = hasAudioFiles && hasImageFile;
-
-		if (files?.length > 0) {
-			document.querySelector('.dropzone-lead')?.remove();
-		}
+	function ffmpegProgress(progress: number) {
+		encodeProgress = progress;
 	}
-
-	function clearFiles(): void {
-		files = [];
-		fileDropperEl = document.getElementById('file-dropper') as any;
-		fileDropperEl.value = '';
-		audCount = 0;
-		hasImageFile = false;
-		hasAudioFiles = false;
-		hasRequiredFiles = false;
-	}
-
-	async function ffmpegStuff(): Promise<void> {
-		if (!hasRequiredFiles) {
-			return;
-		}
-
-		encodeStarted = true;
-		console.log('starting ffmpeg stuff');
-
-		console.log('about to load');
-
-		const ffmpeg = new FFmpeg();
-
-		ffmpeg.on('log', ({ message: msg }: LogEvent) => {
-			console.log(msg);
-		});
-
-		ffmpeg.on('progress', (pe) => {
-			encodeProgress = pe.progress;
-			if (pe.progress === 1) {
-				encodeDone = true;
-			}
-
-			console.log(pe);
-		});
-
-		await ffmpeg.load({
-			coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-			wasmURL: await toBlobURL(`https://cdn.thatracks.com/ffmpeg-core.wasm`, 'application/wasm')
-		});
-		console.log('loaded ffmpeg');
-
-		console.log(fileUrls);
-		for (const fileName in fileUrls) {
-			await ffmpeg.writeFile(fileName, await fetchFile(fileUrls[fileName]));
-		}
-
-		console.log('writing input file');
-		console.log(ffmpegAudParams);
-		console.log(ffmpegConcatParams);
-
-		let concatParams: string[] = [];
-		if (hasMultipleAudioFiles) {
-			concatParams = [
-				...ffmpegAudParams,
-				'-filter_complex',
-				ffmpegConcatParams.join('') + 'concat=n=' + ffmpegConcatParams.length + ':v=0:a=1'
-			];
-			console.log(concatParams);
-		}
-
-		await ffmpeg.exec([
-			'-hwaccel',
-			'auto',
-			'-loop',
-			'1',
-			'-framerate',
-			'1',
-			'-i',
-			'cover',
-			'-i',
-			'aud0',
-			...concatParams,
-			'-tune',
-			'stillimage',
-			'-shortest',
-			'-fflags',
-			'+shortest',
-			'-max_interleave_delta',
-			'100M',
-			'-vf',
-			'format=yuv420p',
-			'-s',
-			'1080x1080',
-			'-preset',
-			'ultrafast',
-			'-b:a',
-			'320k',
-			'out.mp4'
-		]);
-		// await ffmpeg.exec(['-i', 'in.mp4', '-c:a', 'copy', 'out.mp4']);
-		console.log('encoding to mp4');
-
-		vidOutput = await ffmpeg.readFile('out.mp4');
-
-		// await ffmpeg.writeFile('in.mp4', vidOutput);
+	function ffmpegDone(done: boolean) {
+		encodeDone = done;
 	}
 
 	function download(): void {
@@ -196,10 +45,14 @@
 		window.URL.revokeObjectURL(vidUrl);
 	}
 
+	async function ffmpegCreateVideo(): Promise<void> {
+		vidOutput = await createVideo(ffmpeg, files);
+	}
+
 	$: trackUnderLineClass = $modeCurrent ? 'decoration-cyan-700' : 'decoration-yellow-300';
 </script>
 
-<div class="flex-auto w-full h-full flex overflow-hidden">
+<div class="flex-auto w-full h-full flex">
 	<div id="page" class="flex-1 overflow-x-hidden flex flex-col" style="scrollbar-gutter: auto;">
 		<main id="page-content" class="flex-auto mt-[10vh]">
 			<div class="container h-full mx-auto flex justify-center">
@@ -207,63 +60,20 @@
 					<h1 class="text-5xl mb-12 mx-auto">
 						Upload those <span class="underline {trackUnderLineClass} font-bold">tracks</span>.
 					</h1>
-					<FileDropzone
-						class={files?.length > 0 ? 'min-h-[4rem]' : 'h-[40vh]'}
-						id="file-dropper"
-						name="files-example-two"
-						accept="image/*,audio/*"
-						multiple
-						on:change={onChangeHandler}
-						bind:files={droppedFiles}
-					>
-						<svelte:fragment slot="lead">
-							<i class="fa-solid fa-file-arrow-up text-4xl"></i>
-						</svelte:fragment>
-						<svelte:fragment slot="message">
-							<div>
-								<strong>Upload {files?.length > 0 ? 'more ' : ' '}files</strong> or drag and drop
-							</div>
-						</svelte:fragment>
-						<svelte:fragment slot="meta">
-							{#if files?.length === 0}
-								<div class={files?.length > 0 ? 'pb-[1vh]' : ''}>
-									Audio and Image formats allowed.
-								</div>
-							{/if}
-						</svelte:fragment>
-					</FileDropzone>
+
+					<FileDropper />
+
 					<br />
 
 					<ProgressBar value={encodeProgress} max={1} />
 
-					{#if files?.length > 0}
-						<div class="w-full mt-8">
-							<button class="btn variant-filled-primary mb-4" on:click={clearFiles}>Clear</button>
-							<dl class="list-dl">
-								{#each files as file}
-									<div>
-										<span class="badge bg-primary-500">📄</span>
-										<span class="flex-auto">
-											<dt>{file.name}</dt>
-											<dd>
-												{file.type.includes('audio')
-													? 'An audio file'
-													: file.type.includes('image')
-														? 'An image file'
-														: 'An unknown file'}
-											</dd>
-										</span>
-									</div>
-								{/each}
-							</dl>
-						</div>
-					{/if}
+					<TrackList />
 
 					<div class="flex flex-col items-center justify-center mt-12">
 						<button
-							disabled={!hasRequiredFiles}
-							class="btn variant-filled-primary mb-4 w-80 font-bold disabled"
-							on:click={ffmpegStuff}>Create Video</button
+							disabled={!hasRequiredFiles($filesStore)}
+							class="btn variant-filled-primary mb-4 w-60 min-w-20 font-bold disabled"
+							on:click={ffmpegCreateVideo}>Create Video</button
 						>
 
 						<!-- {#if encodeStarted} -->

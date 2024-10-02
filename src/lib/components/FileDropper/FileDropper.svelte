@@ -1,7 +1,12 @@
 <script lang="ts">
+	import { filesStore } from '$lib/state/files.store';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 
-	export let files: File[];
+	let files: File[];
+
+	filesStore.subscribe((f) => {
+		files = f;
+	});
 
 	let droppedFiles: FileList | undefined;
 
@@ -17,6 +22,7 @@
 		});
 
 		files = [...files, ...droppedFilesFiltered];
+		filesStore.set(files);
 
 		if (files?.length > 0) {
 			document.querySelector('.dropzone-lead')?.remove();
