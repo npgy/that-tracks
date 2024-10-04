@@ -15,7 +15,7 @@
 		<div class="flex flex-col">
 			{#each $filesStore as file, i}
 				<div
-					class="flex p-4 mb-2 bg-surface-100 dark:bg-surface-700 border-token rounded-token border-surface-200 dark:border-surface-400"
+					class="flex p-4 mb-2 bg-surface-100 dark:bg-surface-700 border-token rounded-token border-surface-200 dark:border-surface-600"
 					style="order: {i}}"
 				>
 					<span class="flex-auto">
