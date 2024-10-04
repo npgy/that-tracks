@@ -2,6 +2,8 @@
 	import filesStore from '$lib/state/files.store';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 
+	export let fileInputEl: HTMLInputElement | undefined;
+
 	let droppedFiles: FileList | undefined;
 
 	function onChangeHandler(e: Event): void {
@@ -27,6 +29,7 @@
 	multiple
 	on:change={onChangeHandler}
 	bind:files={droppedFiles}
+	bind:fileInput={fileInputEl}
 >
 	<svelte:fragment slot="lead">
 		<i class="fa-solid fa-file-arrow-up text-4xl"></i>

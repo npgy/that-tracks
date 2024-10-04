@@ -16,8 +16,3 @@ export function hasRequiredFiles(files: File[]): boolean {
 	}
 	return false;
 }
-
-export function clearFiles(): void {
-	(document.getElementById('file-dropper') as any).value = '';
-	filesStore.set([]);
-}

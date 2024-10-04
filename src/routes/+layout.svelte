@@ -17,8 +17,8 @@
 		: 'text-primary-400 hover:text-primary-500';
 </script>
 
-<div class="w-full h-full flex flex-col">
-	<header class="flex-none z-10">
+<div class="w-full h-full">
+	<header class="z-10">
 		<AppBar background="">
 			<svelte:fragment slot="lead">
 				<strong class="text-xl">That Tracks</strong>
@@ -37,7 +37,7 @@
 	</header>
 
 	<slot />
-	<footer class="mx-auto p-4">
+	<footer class="mx-auto p-4 h-[30%] flex justify-center items-end">
 		<div class="flex justify-center">
 			<div>
 				Made with ❤️ by
