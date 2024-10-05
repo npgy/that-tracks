@@ -1,5 +1,6 @@
 <script lang="ts">
 	import filesStore from '$lib/state/files.store';
+	import { onMount } from 'svelte';
 
 	export let fileInputEl: any;
 
@@ -72,29 +73,31 @@
 		};
 	}
 
-	document.addEventListener('mouseup', (e: MouseEvent) => {
-		isMouseDown = false;
-		let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem}`);
-		let draggablePlaceholder = document.getElementById('draggable-placeholder');
-		draggablePlaceholder?.classList.add('hidden');
-		draggableItem?.classList.remove('absolute');
-		draggableItem?.style.removeProperty('left');
-		draggableItem?.style.removeProperty('top');
-		currentDraggingItem = -1;
-	});
+	onMount(() => {
+		document.addEventListener('mouseup', (e: MouseEvent) => {
+			isMouseDown = false;
+			let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem}`);
+			let draggablePlaceholder = document.getElementById('draggable-placeholder');
+			draggablePlaceholder?.classList.add('hidden');
+			draggableItem?.classList.remove('absolute');
+			draggableItem?.style.removeProperty('left');
+			draggableItem?.style.removeProperty('top');
+			currentDraggingItem = -1;
+		});
 
-	document.addEventListener('mousemove', (e: MouseEvent) => {
-		e.preventDefault();
-		let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem}`);
-		const yPos = draggableItem?.getBoundingClientRect().top ?? 0;
-		if (isMouseDown) {
-			// console.log(yPos, e.clientY);
-			// console.log(offset);
-			// draggableItem?.style.setProperty('left', (e.clientX + offset[0]).toString() + 'px');
-			draggableItem?.style.setProperty('top', (e.clientY + offset[1]).toString() + 'px');
-			// console.log(e.clientX, e.clientY);
-			// console.log(e.clientX, e.clientY);
-		}
+		document.addEventListener('mousemove', (e: MouseEvent) => {
+			e.preventDefault();
+			let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem}`);
+			const yPos = draggableItem?.getBoundingClientRect().top ?? 0;
+			if (isMouseDown) {
+				// console.log(yPos, e.clientY);
+				// console.log(offset);
+				// draggableItem?.style.setProperty('left', (e.clientX + offset[0]).toString() + 'px');
+				draggableItem?.style.setProperty('top', (e.clientY + offset[1]).toString() + 'px');
+				// console.log(e.clientX, e.clientY);
+				// console.log(e.clientX, e.clientY);
+			}
+		});
 	});
 </script>
 
