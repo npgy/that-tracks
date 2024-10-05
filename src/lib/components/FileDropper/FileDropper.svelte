@@ -2,7 +2,7 @@
 	import filesStore from '$lib/state/files.store';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 
-	export let fileInputEl: HTMLInputElement | undefined;
+	export let fileInputEl: any;
 
 	let droppedFiles: FileList | undefined;
 

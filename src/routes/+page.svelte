@@ -13,7 +13,7 @@
 	let ffmpeg: FFmpeg;
 
 	let vidOutput: FileData;
-	let fileInputEl: HTMLInputElement | undefined;
+	$: fileInputEl = {};
 
 	let encodeProgress: number = 0;
 	let encodeDone: boolean = false;
