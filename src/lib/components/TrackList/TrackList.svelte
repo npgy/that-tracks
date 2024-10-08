@@ -189,7 +189,7 @@
 							<p class="text-md">{file.name}</p>
 						</span>
 						<audio id="audfile-{i}" controls src={fileObjUrls[i]}></audio>
-						<button on:click={deleteFile(i)} aria-roledescription="Deletes the track"
+						<button aria-roledescription="Deletes the track"
 							><i class="fa-solid fa-trash"></i></button
 						>
 					</div>
