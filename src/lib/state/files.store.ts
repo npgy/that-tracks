@@ -1,14 +1,21 @@
 import { writable, type Updater, type Writable } from 'svelte/store';
 
-function createFilesStore(): Writable<File[]> {
-	const { set, update, subscribe }: Writable<File[]> = writable([]);
+export type AppFile = {
+	uuid: string;
+	blobUrl?: string;
+	order: number;
+	nativeFile: File;
+};
 
-	function setFiles(files: File[]) {
+function createFilesStore(): Writable<AppFile[]> {
+	const { set, update, subscribe }: Writable<AppFile[]> = writable([]);
+
+	function setFiles(files: AppFile[]) {
 		set(files);
 		updateSvelteFragmentInTheDom(files);
 	}
 
-	function updateFiles(updater: Updater<File[]>): void {
+	function updateFiles(updater: Updater<AppFile[]>): void {
 		update((files) => {
 			const updatedFiles = updater(files);
 			updateSvelteFragmentInTheDom(updatedFiles);
@@ -24,7 +31,7 @@ function createFilesStore(): Writable<File[]> {
 }
 
 // Should be able to remove this in version 5
-function updateSvelteFragmentInTheDom(files: File[]): void {
+function updateSvelteFragmentInTheDom(files: AppFile[]): void {
 	if (files?.length > 0) {
 		document.querySelector('.dropzone-lead')?.setAttribute('hidden', 'true');
 	} else {

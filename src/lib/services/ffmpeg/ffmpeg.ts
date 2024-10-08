@@ -3,6 +3,7 @@ import type { FileData } from '../../../../node_modules/@ffmpeg/ffmpeg/dist/esm/
 import ffmpegCore from '@ffmpeg/core?url';
 
 import { fetchFile } from '../../../../node_modules/@ffmpeg/util/dist/esm/index.js';
+import type { AppFile } from '$lib/state/files.store.js';
 
 type FileUrls = { [file: string]: string };
 
@@ -14,7 +15,7 @@ const toBlobURL = async (url: string, mimeType: string): Promise<string> => {
 };
 ///////////////////////////////////////////////////////////////////////
 
-function getFileUrlsAndFfmpegParams(files: File[]): {
+function getFileUrlsAndFfmpegParams(files: AppFile[]): {
 	fileUrls: FileUrls;
 	audParams: string[];
 	concatParams: string[];
@@ -26,8 +27,8 @@ function getFileUrlsAndFfmpegParams(files: File[]): {
 	let ffmpegConcatParams: string[] = ['[1:a]'];
 
 	for (const file of files) {
-		if (file.type.includes('audio')) {
-			fileUrls['aud' + audCount] = URL.createObjectURL(file);
+		if (file.nativeFile.type.includes('audio')) {
+			fileUrls['aud' + audCount] = URL.createObjectURL(file.nativeFile);
 
 			if (audCount > 0) {
 				ffmpegAudParams = [...ffmpegAudParams, '-i', 'aud' + audCount];
@@ -35,8 +36,8 @@ function getFileUrlsAndFfmpegParams(files: File[]): {
 			}
 			audCount++;
 		}
-		if (file.type.includes('image')) {
-			fileUrls['cover'] = URL.createObjectURL(file);
+		if (file.nativeFile.type.includes('image')) {
+			fileUrls['cover'] = URL.createObjectURL(file.nativeFile);
 		}
 	}
 
@@ -48,7 +49,7 @@ function getFileUrlsAndFfmpegParams(files: File[]): {
 	};
 }
 
-export async function createVideo(ffmpeg: FFmpeg, files: File[]): Promise<FileData> {
+export async function createVideo(ffmpeg: FFmpeg, files: AppFile[]): Promise<FileData> {
 	console.log('loading ffmpeg');
 
 	await ffmpeg.load({

@@ -1,15 +1,15 @@
 <script lang="ts">
-	import filesStore from '$lib/state/files.store';
+	import filesStore, { type AppFile } from '$lib/state/files.store';
 	import { onDestroy, onMount } from 'svelte';
 
 	export let fileInputEl: any;
 
 	let isMouseDown: boolean = false;
 	let isReordering: Record<number, boolean> = { 0: false };
-	let currentDraggingItem: number = -1;
-	let currentDraggedPos: number = -1;
-	let currentAbove: number = 0;
-	let currentBelow: number = 1;
+	let currentDraggingItem: string = '';
+	let currentDraggedPos: string = '';
+	let currentAbove: string = '';
+	let currentBelow: string = '';
 	$: fileObjUrls = [''];
 	$: totalRuntime = 0;
 
@@ -21,22 +21,21 @@
 
 	let offset: number;
 
-	function beginReorder(item: number): (e: MouseEvent) => void {
+	function beginReorder(file: AppFile): (e: MouseEvent) => void {
 		return (e: MouseEvent) => {
 			e.preventDefault();
-			isReordering[item] = true;
+			isReordering[file.order] = true;
 			isMouseDown = true;
-			currentDraggingItem = item;
-			currentDraggedPos = item;
-			let draggableItem = document.getElementById(`draggable-file-${item}`);
-			const docXPos = document.firstElementChild?.getBoundingClientRect().left ?? 0;
-			const docYPos = document.firstElementChild?.getBoundingClientRect().top ?? 0;
-
+			currentDraggingItem = file.uuid;
+			currentDraggedPos = file.uuid;
+			let draggableItem = document.getElementById(`draggable-file-${file.uuid}`);
 			const xPos = draggableItem?.offsetLeft ?? 0;
 			const yPos = draggableItem?.offsetTop ?? 0;
+			const draggableHeight = (draggableItem?.offsetHeight.toString() ?? '58') + 'px';
 			offset = yPos - e.clientY;
 			let draggablePlaceholder = document.getElementById('draggable-placeholder');
-			draggablePlaceholder?.style.setProperty('order', (item + 1).toString());
+			draggablePlaceholder?.style.setProperty('order', (file.order + 1).toString());
+			draggablePlaceholder?.style.setProperty('height', draggableHeight);
 			draggablePlaceholder?.classList.remove('hidden');
 			draggableItem?.classList.add('absolute');
 			draggableItem?.classList.add('w-[40rem]');
@@ -44,8 +43,8 @@
 			draggableItem?.style.setProperty('top', yPos.toString() + 'px');
 
 			// get current list items above and below
-			currentAbove = item - 1;
-			currentBelow = item + 1;
+			currentAbove = $filesStore[file.order - 1].uuid;
+			currentBelow = $filesStore[file.order + 1].uuid;
 		};
 	}
 
@@ -66,8 +65,8 @@
 			draggableItem?.classList.remove('absolute');
 			draggableItem?.style.removeProperty('left');
 			draggableItem?.style.removeProperty('top');
-			currentDraggingItem = -1;
-			currentDraggedPos = -1;
+			currentDraggingItem = '';
+			currentDraggedPos = '';
 		});
 
 		document.addEventListener('mousemove', (e: MouseEvent) => {
@@ -126,7 +125,7 @@
 		let i = 0;
 		fileObjUrls = [];
 		for (const file of $filesStore) {
-			fileObjUrls[i] = URL.createObjectURL(file);
+			fileObjUrls[i] = URL.createObjectURL(file.nativeFile);
 			i++;
 		}
 	}
@@ -140,13 +139,15 @@
 		createFileObjURLs();
 	});
 
-	function deleteFile(fileNum: number): () => void {
+	function deleteFile(fileId: string): () => void {
 		return () => {
-			console.log(fileNum);
-			const filtered = $filesStore.filter((_, i) => {
-				return i !== fileNum + 1;
+			const filtered = $filesStore.filter((file) => {
+				return file.uuid !== fileId;
 			});
 			filesStore.set(filtered);
+			if (filtered.length === 0) {
+				clearFiles();
+			}
 		};
 	}
 </script>
@@ -171,25 +172,25 @@
 			<div class="flex flex-col">
 				<div
 					id="draggable-placeholder"
-					class="flex flex-row space-x-4 p-4 mb-2 h-[58px] bg-gray-100 dark:bg-surface-700 rounded-token hidden"
+					class="flex flex-row space-x-4 p-4 mb-2 bg-gray-100 dark:bg-surface-700 rounded-token hidden"
 				></div>
 
-				{#each $filesStore as file, i}
+				{#each $filesStore as file, _}
 					<div
-						id="draggable-file-{i}"
-						data-file-num={i}
+						id="draggable-file-{file.uuid}"
+						data-file-num={file.uuid}
 						class="flex flex-row space-x-4 p-4 mb-2 bg-gray-100 dark:bg-surface-700 border-token rounded-token border-surface-200 dark:border-surface-600"
-						style="order: {i}"
+						style="order: {file.order}"
 						draggable="false"
 					>
-						<button aria-roledescription="Reorders the track" on:mousedown={beginReorder(i)}
+						<button aria-roledescription="Reorders the track" on:mousedown={beginReorder(file)}
 							><i class="fa-solid fa-bars self-center hover:cursor-pointer"></i></button
 						>
 						<span class="flex-auto self-center">
-							<p class="text-md">{file.name}</p>
+							<p class="text-md">{file.nativeFile.name}</p>
 						</span>
-						<audio id="audfile-{i}" controls src={fileObjUrls[i]}></audio>
-						<button aria-roledescription="Deletes the track"
+						<audio id="audfile-{file.uuid}" controls src={fileObjUrls[file.order]}></audio>
+						<button on:click={deleteFile(file.uuid)} aria-roledescription="Deletes the track"
 							><i class="fa-solid fa-trash"></i></button
 						>
 					</div>

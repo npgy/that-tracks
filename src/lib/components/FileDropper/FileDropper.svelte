@@ -1,5 +1,5 @@
 <script lang="ts">
-	import filesStore from '$lib/state/files.store';
+	import filesStore, { type AppFile } from '$lib/state/files.store';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 
 	export let fileInputEl: any;
@@ -17,7 +17,15 @@
 			}
 		});
 
-		filesStore.update((files) => [...files, ...droppedFilesFiltered]);
+		const droppedFilteredAppFiles = droppedFilesFiltered.map((file, i) => {
+			return {
+				uuid: window.crypto.randomUUID().slice(0, 5),
+				order: i + $filesStore.length,
+				nativeFile: file
+			} as AppFile;
+		});
+
+		filesStore.update((files) => [...files, ...droppedFilteredAppFiles]);
 	}
 </script>
 
