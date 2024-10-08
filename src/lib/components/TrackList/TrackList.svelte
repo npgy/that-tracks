@@ -1,6 +1,6 @@
 <script lang="ts">
 	import filesStore from '$lib/state/files.store';
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 
 	export let fileInputEl: any;
 
@@ -10,6 +10,8 @@
 	let currentDraggedPos: number = -1;
 	let currentAbove: number = 0;
 	let currentBelow: number = 1;
+	$: fileObjUrls = [''];
+	$: totalRuntime = 0;
 
 	function clearFiles(): void {
 		console.log(fileInputEl);
@@ -107,6 +109,10 @@
 		});
 	});
 
+	onDestroy(() => {
+		revokeFileObjURLs();
+	});
+
 	function getAllDraggables(): HTMLElement[] {
 		let draggables: HTMLElement[] = [];
 		for (let i = 0; i < $filesStore.length; i++) {
@@ -114,6 +120,34 @@
 			if (draggableItem) draggables.push(draggableItem);
 		}
 		return draggables;
+	}
+
+	function createFileObjURLs(): void {
+		let i = 0;
+		fileObjUrls = [];
+		for (const file of $filesStore) {
+			fileObjUrls[i] = URL.createObjectURL(file);
+			i++;
+		}
+	}
+
+	function revokeFileObjURLs(): void {
+		if (fileObjUrls) fileObjUrls.forEach((url) => URL.revokeObjectURL(url));
+	}
+
+	filesStore.subscribe(() => {
+		revokeFileObjURLs();
+		createFileObjURLs();
+	});
+
+	function deleteFile(fileNum: number): () => void {
+		return () => {
+			console.log(fileNum);
+			const filtered = $filesStore.filter((_, i) => {
+				return i !== fileNum + 1;
+			});
+			filesStore.set(filtered);
+		};
 	}
 </script>
 
@@ -151,12 +185,22 @@
 						<button aria-roledescription="Reorders the track" on:mousedown={beginReorder(i)}
 							><i class="fa-solid fa-bars self-center hover:cursor-pointer"></i></button
 						>
-						<span class="flex-auto">
+						<span class="flex-auto self-center">
 							<p class="text-md">{file.name}</p>
 						</span>
+						<audio id="audfile-{i}" controls src={fileObjUrls[i]}></audio>
+						<button on:click={deleteFile(i)} aria-roledescription="Deletes the track"
+							><i class="fa-solid fa-trash"></i></button
+						>
 					</div>
 				{/each}
 			</div>
+			<!-- <div>
+				<p>Total Runtime Minutes: {totalRuntime / 60}</p>
+				on:loadedmetadata={(e) => {
+								totalRuntime += e.currentTarget.duration;
+							}}
+			</div> -->
 		</div>
 	</div>
 {/if}
