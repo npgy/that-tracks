@@ -6,10 +6,12 @@
 
 	let isMouseDown: boolean = false;
 	let isReordering: Record<number, boolean> = { 0: false };
-	let currentDraggingItem: string = '';
-	let currentDraggedPos: string = '';
+	let currentDraggingItem: AppFile | undefined;
+	let currentDraggedPos: number = -1;
 	let currentAbove: string = '';
 	let currentBelow: string = '';
+	let currentAboveEl: HTMLElement | null;
+	let currentBelowEl: HTMLElement | null;
 	$: fileObjUrls = [''];
 	$: totalRuntime = 0;
 
@@ -21,92 +23,118 @@
 
 	let offset: number;
 
-	function beginReorder(file: AppFile): (e: MouseEvent) => void {
-		return (e: MouseEvent) => {
-			e.preventDefault();
-			isReordering[file.order] = true;
-			isMouseDown = true;
-			currentDraggingItem = file.uuid;
-			currentDraggedPos = file.uuid;
-			let draggableItem = document.getElementById(`draggable-file-${file.uuid}`);
-			const xPos = draggableItem?.offsetLeft ?? 0;
-			const yPos = draggableItem?.offsetTop ?? 0;
-			const draggableHeight = (draggableItem?.offsetHeight.toString() ?? '58') + 'px';
-			offset = yPos - e.clientY;
-			let draggablePlaceholder = document.getElementById('draggable-placeholder');
-			draggablePlaceholder?.style.setProperty('order', (file.order + 1).toString());
-			draggablePlaceholder?.style.setProperty('height', draggableHeight);
-			draggablePlaceholder?.classList.remove('hidden');
-			draggableItem?.classList.add('absolute');
-			draggableItem?.classList.add('w-[40rem]');
-			draggableItem?.style.setProperty('left', xPos.toString() + 'px');
-			draggableItem?.style.setProperty('top', yPos.toString() + 'px');
+	// function beginReorder(file: AppFile): (e: MouseEvent) => void {
+	// 	return (e: MouseEvent) => {
+	// 		e.preventDefault();
+	// 		isReordering[file.order] = true;
+	// 		isMouseDown = true;
+	// 		currentDraggingItem = file;
+	// 		currentDraggedPos = file.order;
+	// 		let draggableItem = document.getElementById(`draggable-file-${file.uuid}`);
+	// 		const xPos = draggableItem?.offsetLeft ?? 0;
+	// 		const yPos = draggableItem?.offsetTop ?? 0;
+	// 		const draggableHeight = (draggableItem?.offsetHeight.toString() ?? '58') + 'px';
+	// 		offset = yPos - e.clientY;
+	// 		let draggablePlaceholder = document.getElementById('draggable-placeholder');
+	// 		draggablePlaceholder?.style.setProperty('order', (file.order + 1).toString());
+	// 		draggablePlaceholder?.style.setProperty('height', draggableHeight);
+	// 		draggablePlaceholder?.classList.remove('hidden');
+	// 		draggableItem?.classList.add('absolute');
+	// 		draggableItem?.classList.add('w-[40rem]');
+	// 		draggableItem?.style.setProperty('left', xPos.toString() + 'px');
+	// 		draggableItem?.style.setProperty('top', yPos.toString() + 'px');
 
-			// get current list items above and below
-			currentAbove = $filesStore[file.order - 1].uuid;
-			currentBelow = $filesStore[file.order + 1].uuid;
-		};
+	// 		// get current list items above and below
+	// 		if (file.order > 0) {
+	// 			currentAbove = $filesStore[file.order - 1].uuid;
+	// 		}
+	// 		if (file.order < $filesStore.length - 1) {
+	// 			currentBelow = $filesStore[file.order + 1].uuid;
+	// 		}
+	// 	};
+	// }
+
+	function getAboveEl(fileUuid: string): HTMLElement | null {
+		const itemOrder = $filesStore.find((file) => file.uuid === fileUuid)?.order ?? 0;
+		const prevUuid = $filesStore.find((file) => file.order === itemOrder - 1)?.uuid ?? '';
+		return document.getElementById(`draggable-file-${prevUuid}`);
 	}
 
-	onMount(() => {
-		let currentAboveEl = document.getElementById(`draggable-file-${currentAbove}`);
-		let currentBelowEl = document.getElementById(`draggable-file-${currentBelow}`);
+	function getBelowEl(fileUuid: string): HTMLElement | null {
+		const itemOrder = $filesStore.find((file) => file.uuid === fileUuid)?.order ?? 0;
+		const prevUuid = $filesStore.find((file) => file.order === itemOrder + 1)?.uuid ?? '';
+		return document.getElementById(`draggable-file-${prevUuid}`);
+	}
 
-		document.addEventListener('mouseup', (e: MouseEvent) => {
-			isMouseDown = false;
-			let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem}`);
-			let draggablePlaceholder = document.getElementById('draggable-placeholder');
-			draggablePlaceholder?.classList.add('hidden');
+	// onMount(() => {
+	// 	if (currentDraggingItem) {
+	// 		currentAboveEl = getAboveEl(currentDraggingItem.uuid);
+	// 		currentBelowEl = getBelowEl(currentDraggingItem.uuid);
+	// 	}
 
-			if (currentDraggedPos === currentDraggingItem) {
-				draggableItem?.style.setProperty('order', currentDraggedPos.toString());
-			}
+	// document.addEventListener('mouseup', (e: MouseEvent) => {
+	// 	if (!currentDraggingItem) {
+	// 		return;
+	// 	}
+	// 	isMouseDown = false;
+	// 	let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem.uuid}`);
+	// 	let draggablePlaceholder = document.getElementById('draggable-placeholder');
+	// 	draggablePlaceholder?.classList.add('hidden');
 
-			draggableItem?.classList.remove('absolute');
-			draggableItem?.style.removeProperty('left');
-			draggableItem?.style.removeProperty('top');
-			currentDraggingItem = '';
-			currentDraggedPos = '';
-		});
+	// 	if (currentDraggedPos === currentDraggingItem?.order) {
+	// 		draggableItem?.style.setProperty('order', currentDraggedPos.toString());
+	// 	}
 
-		document.addEventListener('mousemove', (e: MouseEvent) => {
-			e.preventDefault();
-			let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem}`);
-			const draggablePlaceholder = document.getElementById('draggable-placeholder');
-			const draggables = getAllDraggables();
-			const yPos = draggableItem?.getBoundingClientRect().top ?? 0;
-			let isBelow = false;
-			let isAbove = false;
-			if (isMouseDown) {
-				draggableItem?.style.setProperty('top', (e.clientY + offset).toString() + 'px');
+	// 	draggableItem?.classList.remove('absolute');
+	// 	draggableItem?.style.removeProperty('left');
+	// 	draggableItem?.style.removeProperty('top');
+	// 	currentDraggingItem = undefined;
+	// 	currentDraggedPos = -1;
+	// });
 
-				// if (currentBelowEl && e.clientY > currentBelowEl.offsetTop) {
-				// 	if (!isBelow) {
-				// 		currentBelowEl.style.setProperty('order', currentDraggedPos.toString());
-				// 		currentAbove++;
-				// 		currentBelow++;
-				// 		currentDraggedPos++;
-				// 		currentAboveEl = document.getElementById(`draggable-file-${currentAbove}`);
-				// 		currentBelowEl = document.getElementById(`draggable-file-${currentBelow}`);
-				// 		draggablePlaceholder?.style.setProperty('order', currentDraggedPos.toString());
-				// 		isBelow = true;
-				// 	}
-				// }
-				// if (currentAboveEl && e.clientY < currentAboveEl.offsetTop + currentAboveEl.offsetHeight) {
-				// 	if (!isAbove) {
-				// 		currentAboveEl.style.setProperty('order', currentDraggedPos.toString());
-				// 		currentAbove--;
-				// 		currentBelow--;
-				// 		currentDraggedPos--;
-				// 		currentAboveEl = document.getElementById(`draggable-file-${currentAbove}`);
-				// 		currentBelowEl = document.getElementById(`draggable-file-${currentBelow}`);
-				// 		draggablePlaceholder?.style.setProperty('order', currentDraggedPos.toString());
-				// 		isAbove = true;
-				// 	}
-				// }
-			}
-		});
-	});
+	// document.addEventListener('mousemove', (e: MouseEvent) => {
+	// 	e.preventDefault();
+	// 	if (!currentDraggingItem) {
+	// 		return;
+	// 	}
+	// 	let draggableItem = document.getElementById(`draggable-file-${currentDraggingItem?.uuid}`);
+	// 	const draggablePlaceholder = document.getElementById('draggable-placeholder');
+	// 	currentAboveEl = getAboveEl(currentDraggingItem.uuid);
+	// 	currentBelowEl = getBelowEl(currentDraggingItem.uuid);
+	// 	const draggables = getAllDraggables();
+	// 	const yPos = draggableItem?.getBoundingClientRect().top ?? 0;
+	// 	let isBelow = false;
+	// 	let isAbove = false;
+	// 	if (isMouseDown) {
+	// 		draggableItem?.style.setProperty('top', (e.clientY + offset).toString() + 'px');
+	// 		// console.log(currentDraggingItem);
+	// 		// console.log('above', currentAboveEl);
+	// 		// console.log('below', currentBelowEl);
+	// 		if (currentBelowEl && e.clientY > currentBelowEl.offsetTop) {
+	// 			console.log('moved down 1');
+	// 			currentBelowEl.style.setProperty('order', currentDraggedPos.toString());
+	// 			currentDraggingItem.order++;
+	// 			currentDraggedPos++;
+	// 			currentAboveEl = getAboveEl(currentDraggingItem.uuid);
+	// 			currentBelowEl = getBelowEl(currentDraggingItem.uuid);
+	// 			draggablePlaceholder?.style.setProperty('order', currentDraggedPos.toString());
+	// 			isBelow = true;
+	// 			return;
+	// 		}
+	// 		if (currentAboveEl && e.clientY < currentAboveEl.offsetTop + currentAboveEl.offsetHeight) {
+	// 			console.log('moved up 1');
+	// 			currentAboveEl.style.setProperty('order', currentDraggedPos.toString());
+	// 			currentDraggingItem.order--;
+	// 			currentDraggedPos--;
+	// 			currentAboveEl = getAboveEl(currentDraggingItem.uuid);
+	// 			currentBelowEl = getBelowEl(currentDraggingItem.uuid);
+	// 			draggablePlaceholder?.style.setProperty('order', currentDraggedPos.toString());
+	// 			isAbove = true;
+	// 			return;
+	// 		}
+	// 	}
+	// });
+	// });
 
 	onDestroy(() => {
 		revokeFileObjURLs();
@@ -150,6 +178,18 @@
 			}
 		};
 	}
+
+	function beginDrag(fileUuid: string): () => void {
+		return () => {
+			document.getElementById(`draggable-file-${fileUuid}`)?.setAttribute('draggable', 'true');
+		};
+	}
+
+	function endDrag(fileUuid: string): () => void {
+		return () => {
+			document.getElementById(`draggable-file-${fileUuid}`)?.setAttribute('draggable', 'false');
+		};
+	}
 </script>
 
 <!-- <div
@@ -181,9 +221,10 @@
 						data-file-num={file.uuid}
 						class="flex flex-row space-x-4 p-4 mb-2 bg-gray-100 dark:bg-surface-700 border-token rounded-token border-surface-200 dark:border-surface-600"
 						style="order: {file.order}"
-						draggable="false"
+						draggable={isReordering[file.order]}
+						on:dragend={endDrag(file.uuid)}
 					>
-						<button aria-roledescription="Reorders the track" on:mousedown={beginReorder(file)}
+						<button aria-roledescription="Reorders the track" on:mousedown={beginDrag(file.uuid)}
 							><i class="fa-solid fa-bars self-center hover:cursor-pointer"></i></button
 						>
 						<span class="flex-auto self-center">

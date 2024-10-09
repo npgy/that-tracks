@@ -19,7 +19,7 @@
 
 		const droppedFilteredAppFiles = droppedFilesFiltered.map((file, i) => {
 			return {
-				uuid: window.crypto.randomUUID().slice(0, 5),
+				uuid: window.crypto.randomUUID(),
 				order: i + $filesStore.length,
 				nativeFile: file
 			} as AppFile;
