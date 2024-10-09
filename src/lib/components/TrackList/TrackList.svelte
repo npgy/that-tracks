@@ -77,8 +77,23 @@
 		);
 		if (currentDraggingFile?.uuid !== dragOverFile?.uuid) {
 			const currentDraggableOrder = currentDraggable?.style.getPropertyValue('order') ?? '0';
+			const dragOverFileOrder = dragOverEl.style.getPropertyValue('order');
 			currentDraggable?.style.setProperty('order', dragOverEl.style.getPropertyValue('order'));
 			dragOverEl?.style.setProperty('order', currentDraggableOrder);
+
+			filesStore.update((files) => {
+				const newFiles = files.map((file) => {
+					let newFile = file;
+					if (file.uuid === currentDraggingFile?.uuid) {
+						newFile.order = Number(dragOverFileOrder);
+					}
+					if (file.uuid === dragOverFile?.uuid) {
+						newFile.order = Number(currentDraggableOrder);
+					}
+					return newFile;
+				});
+				return newFiles;
+			});
 		}
 	}
 </script>
