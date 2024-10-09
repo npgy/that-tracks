@@ -179,8 +179,8 @@
 		};
 	}
 
-	function beginDrag(fileUuid: string): () => void {
-		return () => {
+	function beginDrag(fileUuid: string): (e: DragEvent) => void {
+		return (e: DragEvent) => {
 			const draggable = document.getElementById(`draggable-file-${fileUuid}`);
 			draggable?.setAttribute('draggable', 'true');
 		};
@@ -193,12 +193,17 @@
 		};
 	}
 
-	function endDrag(fileUuid: string): () => void {
-		return () => {
+	function endDrag(fileUuid: string): (e: DragEvent) => void {
+		return (e: DragEvent) => {
+			e.preventDefault();
 			const draggable = document.getElementById(`draggable-file-${fileUuid}`);
 			draggable?.style.removeProperty('opacity');
 			draggable?.setAttribute('draggable', 'false');
 		};
+	}
+
+	function dragOver(e: DragEvent) {
+		e.preventDefault();
 	}
 </script>
 
@@ -234,6 +239,7 @@
 						draggable={isReordering[file.order]}
 						on:dragend={endDrag(file.uuid)}
 						on:drag={duringDrag(file.uuid)}
+						on:dragover={dragOver}
 					>
 						<button aria-roledescription="Reorders the track" on:mousedown={beginDrag(file.uuid)}
 							><i class="fa-solid fa-bars self-center hover:cursor-pointer"></i></button
