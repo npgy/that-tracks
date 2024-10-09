@@ -7,7 +7,8 @@
 	import '@fortawesome/fontawesome-free/css/brands.css';
 	import '@fortawesome/fontawesome-free/css/solid.css';
 	import { onMount } from 'svelte';
-	import * from 'drag-drop-touch'
+	import { browser } from '$app/environment';
+	import dragDropTouch from 'drag-drop-touch?url';
 
 	onMount(() => {
 		autoModeWatcher();
@@ -46,4 +47,5 @@
 			</div>
 		</div>
 	</footer>
+	<script src={dragDropTouch}></script>
 </div>
