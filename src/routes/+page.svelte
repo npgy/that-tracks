@@ -75,8 +75,6 @@
 						on:click={ffmpegCreateVideo}>Create Video</button
 					>
 
-					<!-- {#if encodeStarted} -->
-					<!-- {/if} -->
 					<br />
 
 					{#if encodeDone}

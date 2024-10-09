@@ -1,4 +1,4 @@
-import filesStore, { type AppFile } from '$lib/state/files.store';
+import { type AppFile } from '$lib/state/files.store';
 
 export function hasRequiredFiles(files: AppFile[]): boolean {
 	let hasAudio: boolean = false;

@@ -37,7 +37,7 @@
 	</header>
 
 	<slot />
-	<footer class="mx-auto p-4 h-[30%] flex justify-center items-end">
+	<footer class="mx-auto p-4 h-[20%] flex justify-center items-end">
 		<div class="flex justify-center">
 			<div>
 				Made with ❤️ by
