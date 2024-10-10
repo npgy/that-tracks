@@ -26,18 +26,21 @@ function getFileUrlsAndFfmpegParams(files: AppFile[]): {
 	let ffmpegAudParams: string[] = [];
 	let ffmpegConcatParams: string[] = ['[1:a]'];
 
-	for (const file of files) {
+	const filesSorted = files.sort((a, b) => a.order - b.order);
+
+	console.log(filesSorted);
+	for (const file of filesSorted) {
 		if (file.nativeFile.type.includes('audio')) {
-			fileUrls['aud' + audCount] = URL.createObjectURL(file.nativeFile);
+			fileUrls['aud' + file.order] = file.blobUrl ?? '';
 
 			if (audCount > 0) {
-				ffmpegAudParams = [...ffmpegAudParams, '-i', 'aud' + audCount];
-				ffmpegConcatParams = [...ffmpegConcatParams, `[${audCount + 1}:a]`];
+				ffmpegAudParams = [...ffmpegAudParams, '-i', 'aud' + file.order];
+				ffmpegConcatParams = [...ffmpegConcatParams, `[${file.order + 1}:a]`];
 			}
 			audCount++;
 		}
 		if (file.nativeFile.type.includes('image')) {
-			fileUrls['cover'] = URL.createObjectURL(file.nativeFile);
+			fileUrls['cover'] = file.blobUrl ?? '';
 		}
 	}
 

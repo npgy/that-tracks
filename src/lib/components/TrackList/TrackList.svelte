@@ -97,7 +97,7 @@
 	}
 </script>
 
-{#if $filesStore?.length > 0 || $imageStore.nativeFile}
+{#if $filesStore?.length > 0 || $imageStore?.nativeFile}
 	<div class="w-full mt-8">
 		<div class="w-[40rem] mx-auto">
 			<button class="btn variant-filled-primary mb-4" on:click={clearFiles}>Clear All Files</button>

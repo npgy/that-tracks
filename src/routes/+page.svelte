@@ -46,7 +46,7 @@
 	}
 
 	async function ffmpegCreateVideo(): Promise<void> {
-		vidOutput = await createVideo(ffmpeg, $filesStore);
+		vidOutput = await createVideo(ffmpeg, [...$filesStore, $imageStore]);
 	}
 
 	$: trackUnderLineClass = $modeCurrent ? 'decoration-cyan-700' : 'decoration-yellow-300';
