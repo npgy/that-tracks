@@ -4,7 +4,7 @@
 	import TrackList from '$lib/components/TrackList/TrackList.svelte';
 	import { ffmpegLog } from '$lib/services/ffmpeg/ffmpeg-log.js';
 	import { createVideo } from '$lib/services/ffmpeg/ffmpeg.js';
-	import filesStore from '$lib/state/files.store.js';
+	import filesStore, { imageStore } from '$lib/state/files.store.js';
 	import { FFmpeg } from '@ffmpeg/ffmpeg';
 	import { ProgressBar, modeCurrent } from '@skeletonlabs/skeleton';
 	import { onMount } from 'svelte';
@@ -66,17 +66,13 @@
 
 				<ProgressBar value={encodeProgress} max={1} />
 
-				<TrackList bind:fileInputEl />
-
 				<div class="flex flex-col items-center justify-center mt-12">
 					<button
-						disabled={!hasRequiredFiles($filesStore)}
+						disabled={!hasRequiredFiles([...$filesStore, $imageStore])}
 						class="btn variant-filled-primary mb-4 w-60 min-w-20 font-bold disabled"
 						on:click={ffmpegCreateVideo}>Create Video</button
 					>
-
 					<br />
-
 					{#if encodeDone}
 						<p class="mb-2">Your video is ready!</p>
 						<button class="btn variant-filled-primary font-bold" on:click={download}
@@ -84,6 +80,7 @@
 						>
 					{/if}
 				</div>
+				<TrackList bind:fileInputEl />
 			</div>
 		</div>
 	</main>

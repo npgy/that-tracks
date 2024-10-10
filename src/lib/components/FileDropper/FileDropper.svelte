@@ -1,5 +1,5 @@
 <script lang="ts">
-	import filesStore, { type AppFile } from '$lib/state/files.store';
+	import filesStore, { imageStore, type AppFile } from '$lib/state/files.store';
 	import { FileDropzone } from '@skeletonlabs/skeleton';
 
 	export let fileInputEl: any;
@@ -12,15 +12,24 @@
 		}
 
 		const droppedFilesFiltered = Array.from(droppedFiles).filter((file) => {
-			if (file.type.includes('audio') || file.type.includes('image')) {
+			if (file.type.includes('audio')) {
 				return file;
+			}
+			if (file.type.includes('image')) {
+				imageStore.set({
+					uuid: window.crypto.randomUUID(),
+					order: 0,
+					blobUrl: URL.createObjectURL(file),
+					nativeFile: file
+				} as AppFile);
 			}
 		});
 
 		const droppedFilteredAppFiles = droppedFilesFiltered.map((file, i) => {
 			return {
 				uuid: window.crypto.randomUUID(),
-				order: i + $filesStore.length,
+				order: file.type.includes('audio') ? i + $filesStore.length : 0,
+				blobUrl: URL.createObjectURL(file),
 				nativeFile: file
 			} as AppFile;
 		});

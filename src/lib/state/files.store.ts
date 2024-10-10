@@ -42,3 +42,4 @@ function updateSvelteFragmentInTheDom(files: AppFile[]): void {
 const filesStore = createFilesStore();
 
 export default filesStore;
+export const imageStore: Writable<AppFile> = writable();
