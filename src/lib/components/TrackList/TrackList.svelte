@@ -5,12 +5,10 @@
 
 	let currentDraggable: HTMLElement | null;
 	let currentDraggingFile: AppFile | undefined;
-	let imageBlob: string;
-
-	$: artworkFile = $filesStore.find((file) => file.nativeFile.type.includes('image'));
 
 	function clearFiles(): void {
 		filesStore.set([]);
+		imageStore.set({} as AppFile);
 	}
 
 	function deleteFile(fileId: string): () => void {
@@ -103,30 +101,27 @@
 			<button class="btn variant-filled-primary mb-4" on:click={clearFiles}>Clear All Files</button>
 			<div class="flex flex-col">
 				{#each $filesStore as file, _}
-					{#if file.nativeFile.type.includes('audio')}
-						<div
-							id="draggable-file-{file.uuid}"
-							data-file-uuid={file.uuid}
-							class="flex flex-row space-x-4 p-4 mb-2 bg-gray-100 dark:bg-surface-700 border-token rounded-token border-surface-200 dark:border-surface-600"
-							style="order: {file.order}"
-							on:dragend={endDrag}
-							on:drag={duringDrag}
-							on:dragover={dragOver}
-							aria-roledescription="Draggable file"
+					<div
+						id="draggable-file-{file.uuid}"
+						data-file-uuid={file.uuid}
+						class="flex flex-row space-x-4 p-4 mb-2 bg-gray-100 dark:bg-surface-700 border-token rounded-token border-surface-200 dark:border-surface-600"
+						style="order: {file.order}"
+						on:dragend={endDrag}
+						on:drag={duringDrag}
+						on:dragover={dragOver}
+					>
+						<button aria-roledescription="Reorders the track" on:mousedown={beginDrag(file.uuid)}
+							><i class="fa-solid fa-bars self-center hover:cursor-pointer"></i></button
 						>
-							<button aria-roledescription="Reorders the track" on:mousedown={beginDrag(file.uuid)}
-								><i class="fa-solid fa-bars self-center hover:cursor-pointer"></i></button
-							>
-							<span class="px-1 font-bold self-center">{file.order + 1}</span>
-							<span class="flex-auto self-center">
-								<p class="text-md">{file.nativeFile.name}</p>
-							</span>
-							<audio data-aud-uuid={file.uuid} controls src={file.blobUrl}></audio>
-							<button on:click={deleteFile(file.uuid)} aria-roledescription="Deletes the track"
-								><i class="fa-solid fa-trash"></i></button
-							>
-						</div>
-					{/if}
+						<span class="px-1 font-bold self-center">{file.order + 1}</span>
+						<span class="flex-auto self-center">
+							<p class="text-md">{file.nativeFile.name}</p>
+						</span>
+						<audio data-aud-uuid={file.uuid} controls src={file.blobUrl}></audio>
+						<button on:click={deleteFile(file.uuid)} aria-roledescription="Deletes the track"
+							><i class="fa-solid fa-trash"></i></button
+						>
+					</div>
 				{/each}
 				{#if $imageStore?.nativeFile}
 					<h2 class="text-xl font-bold mb-4 mt-6" style="order: {$filesStore.length - 1}">
@@ -147,12 +142,6 @@
 					</div>
 				{/if}
 			</div>
-			<!-- <div>
-				<p>Total Runtime Minutes: {totalRuntime / 60}</p>
-				on:loadedmetadata={(e) => {
-								totalRuntime += e.currentTarget.duration;
-							}}
-			</div> -->
 		</div>
 	</div>
 {/if}
