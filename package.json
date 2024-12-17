@@ -17,18 +17,19 @@
 	},
 	"license": "MIT",
 	"dependencies": {
-		"@tauri-apps/api": "^2",
-		"@tauri-apps/plugin-shell": "^2",
-		"@fortawesome/fontawesome-free": "^6.6.0",
 		"@ffmpeg/core": "^0.12.6",
 		"@ffmpeg/ffmpeg": "^0.12.10",
 		"@ffmpeg/types": "^0.12.2",
-		"@ffmpeg/util": "^0.12.1"
+		"@ffmpeg/util": "^0.12.1",
+		"@fortawesome/fontawesome-free": "^6.6.0"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
 		"@skeletonlabs/skeleton": "2.10.2",
 		"@skeletonlabs/tw-plugin": "0.4.0",
+		"@sveltejs/adapter-static": "^3.0.1",
+		"@sveltejs/kit": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@tailwindcss/forms": "0.5.9",
 		"@tailwindcss/typography": "0.5.15",
 		"@types/eslint": "^9.6.0",
@@ -41,9 +42,6 @@
 		"postcss": "8.4.47",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
-		"@sveltejs/adapter-static": "^3.0.1",
-		"@sveltejs/kit": "^2.0.0",
-		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
 		"tslib": "^2.4.1",
@@ -52,7 +50,6 @@
 		"vite": "^5.0.3",
 		"vite-plugin-tailwind-purgecss": "0.3.3",
 		"vite-plugin-top-level-await": "^1.4.4",
-		"vitest": "^2.0.0",
-		"@tauri-apps/cli": "^2"
+		"vitest": "^2.0.0"
 	}
 }
